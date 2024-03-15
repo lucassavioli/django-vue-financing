@@ -20,6 +20,29 @@
     <div class="right-side">
       <canvas id="amortizationChart"></canvas>
     </div>
+    <div>
+      <table v-if="data">
+        <thead>
+          <tr>
+            <th>Installments Number</th>
+            <th>Installment</th>
+            <th>Interest</th>
+            <th>Amortization</th>
+            <th>Balance Due</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in data" :key="item.installments_number">
+            <td>{{ item.installments_number }}</td>
+            <td>{{ item.installment }}</td>
+            <td>{{ item.interest }}</td>
+            <td>{{ item.amortization }}</td>
+            <td>{{ item.balance_due }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -33,6 +56,7 @@ export default {
       loan: null,
       installments_number: null,
       interest: null,
+      data: null,
       chart: null
     };
   },
@@ -43,23 +67,23 @@ export default {
         installments_number: this.installments_number,
         interest: this.interest
       }).then((response) => {
-        // console.log(response);
-        this.updateChart(response.data);
+        this.data = response.data;
+        this.displayChart(this.data);
       }).catch((error) => {
         console.log(error);
       });
     },
-    updateChart(response) {
+    displayChart(data) {
       if (!this.chart) {
-        console.log(response);
+        console.log(data);
         const ctx = document.getElementById('amortizationChart').getContext('2d');
         this.chart = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: response.map(item => item.installments_number),
+            labels: data.map(item => item.installments_number),
             datasets: [{
               label: 'Balance Due',
-              data: response.map(item => item.balance_due),
+              data: data.map(item => item.balance_due),
               borderColor: 'rgb(75, 192, 192)',
               tension: 0.1,
             }]
@@ -76,7 +100,6 @@ export default {
           }
         });
       }
-      // this.chart.update();
     }
 
   }
