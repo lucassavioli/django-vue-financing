@@ -1,47 +1,84 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <div class="container">
+    <div class="left-side">
+      <form @submit.prevent="submitForm">
+        <div>
+          <label for="loan">Loan:</label>
+          <input type="number" id="loan" v-model="loan" required>
+        </div>
+        <div>
+          <label for="installments_number">Installments Number:</label>
+          <input type="number" id="installments_number" v-model="installments_number" required>
+        </div>
+        <div>
+          <label for="interest">Interest:</label>
+          <input type="number" step="0.01" id="interest" v-model="interest" required>
+        </div>
+        <button type="submit">Submit</button>
+      </form>
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+    <div class="right-side">
+      <canvas id="amortizationChart"></canvas>
+    </div>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script>
+import Chart from 'chart.js/auto';
+import axios from 'axios';
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+export default {
+  data() {
+    return {
+      loan: null,
+      installments_number: null,
+      interest: null,
+      chart: null
+    };
+  },
+  methods: {
+    submitForm() {
+      axios.post('http://localhost:8000/api/sac/', {
+        loan: this.loan,
+        installments_number: this.installments_number,
+        interest: this.interest
+      }).then((response) => {
+        // console.log(response);
+        this.updateChart(response.data);
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    updateChart(response) {
+      if (!this.chart) {
+        console.log(response);
+        const ctx = document.getElementById('amortizationChart').getContext('2d');
+        this.chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: response.map(item => item.installments_number),
+            datasets: [{
+              label: 'Balance Due',
+              data: response.map(item => item.balance_due),
+              borderColor: 'rgb(75, 192, 192)',
+              tension: 0.1,
+            }]
+          },
+          options: {
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Month'
+                }
+              }
+            }
+          }
+        });
+      }
+      // this.chart.update();
+    }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
   }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+};
+</script>
