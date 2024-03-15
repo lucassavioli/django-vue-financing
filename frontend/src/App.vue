@@ -20,28 +20,53 @@
     <div class="right-side">
       <canvas id="amortizationChart"></canvas>
     </div>
-    <div>
-      <table v-if="data">
-        <thead>
-          <tr>
-            <th>Installments Number</th>
-            <th>Installment</th>
-            <th>Interest</th>
-            <th>Amortization</th>
-            <th>Balance Due</th>
-
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in data" :key="item.installments_number">
-            <td>{{ item.installments_number }}</td>
-            <td>{{ item.installment }}</td>
-            <td>{{ item.interest }}</td>
-            <td>{{ item.amortization }}</td>
-            <td>{{ item.balance_due }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-if="data">
+      <div>
+        <h1>Sac Table</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Installments Number</th>
+              <th>Installment</th>
+              <th>Interest</th>
+              <th>Amortization</th>
+              <th>Balance Due</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in data.sac" :key="item.installments_number">
+              <td>{{ item.installments_number }}</td>
+              <td>{{ item.installment }}</td>
+              <td>{{ item.interest }}</td>
+              <td>{{ item.amortization }}</td>
+              <td>{{ item.balance_due }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h1>Price Table</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Installments Number</th>
+              <th>Installment</th>
+              <th>Interest</th>
+              <th>Amortization</th>
+              <th>Balance Due</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in data.price" :key="item.installments_number">
+              <td>{{ item.installments_number }}</td>
+              <td>{{ item.installment }}</td>
+              <td>{{ item.interest }}</td>
+              <td>{{ item.amortization }}</td>
+              <td>{{ item.balance_due }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -62,7 +87,7 @@ export default {
   },
   methods: {
     submitForm() {
-      axios.post('http://localhost:8000/api/sac/', {
+      axios.post('http://localhost:8000/api/sacprice/', {
         loan: this.loan,
         installments_number: this.installments_number,
         interest: this.interest
@@ -80,13 +105,20 @@ export default {
         this.chart = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: data.map(item => item.installments_number),
+            labels: data.sac.map(item => item.installments_number),
             datasets: [{
-              label: 'Balance Due',
-              data: data.map(item => item.balance_due),
+              label: 'SAC',
+              data: data.sac.map(item => item.amortization),
               borderColor: 'rgb(75, 192, 192)',
               tension: 0.1,
-            }]
+            },
+            {
+              label: 'PRICE',
+              data: data.price.map(item => item.amortization),
+              borderColor: 'rgb(75, 192, 55)',
+              tension: 0.1,
+            }
+            ]
           },
           options: {
             scales: {
@@ -94,6 +126,12 @@ export default {
                 title: {
                   display: true,
                   text: 'Month'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Amortization'
                 }
               }
             }
