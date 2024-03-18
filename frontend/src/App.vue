@@ -1,11 +1,11 @@
 <template>
   <div class="pt-6 px-4">
-    <div class="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8">
+    <div class="w-full grid grid-cols-1 grid-rows-2 grid-flow-col gap-4">
+      <div class="bg-white row-span-3 shadow rounded-lg p-4">
         <div class="text-xl font-bold text-gray-900 mb-2">
           <h3 class="text-xl font-bold text-gray-900 mb-2">Sac and Price Simulator</h3>
         </div>
-        <form @submit.prevent="submitForm" class="max-w-xl">
+        <form @submit.prevent="submitForm" class="max-w-sm">
           <div class="mb-5">
             <label for="loan" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Loan:</label>
             <input type="number" id="loan" v-model="loan"
@@ -31,10 +31,10 @@
           </div>
         </form>
       </div>
-      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8  2xl:col-span-2">
+      <div class="bg-white shadow rounded-lg p-4 col-span-2">
         <canvas id="amortizationChart"></canvas>
       </div>
-      <div v-if="data" class="mt-4 w-full flex gap-10 grid-cols-2 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
+      <div v-if="data" class="w-full flex gap-4 grid-cols-2">
         <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8">
           <div class="text-xl font-bold text-gray-900 mb-2">
             <h3 class="text-xl font-bold text-gray-900 mb-2">SAC Table</h3>
@@ -120,9 +120,8 @@ export default {
       });
     },
     displayChart(data) {
+      const ctx = document.getElementById('amortizationChart').getContext('2d');
       if (!this.chart) {
-        console.log(data);
-        const ctx = document.getElementById('amortizationChart').getContext('2d');
         this.chart = new Chart(ctx, {
           type: 'line',
           data: {
@@ -158,6 +157,11 @@ export default {
             }
           }
         });
+      } else {
+        this.chart.data.labels = data.sac.map(item => item.installments_number);
+        this.chart.data.datasets[0].data = data.sac.map(item => item.amortization);
+        this.chart.data.datasets[1].data = data.price.map(item => item.amortization);
+        this.chart.update();
       }
     }
 
