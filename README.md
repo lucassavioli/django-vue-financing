@@ -2,6 +2,8 @@
 
 This web application simulates SAC and PRICE financing methods displaying a comparison using tables and charts that allow users to choose the best finance type.
 
+![Screenshot from 2024-04-23 13-50-20](https://github.com/lucassavioli/django-vue-financing/assets/26097753/744fa6e1-19b1-4a68-980e-68eca0861c35)
+
 ## Setup
 
 Clone the repository current repository:
